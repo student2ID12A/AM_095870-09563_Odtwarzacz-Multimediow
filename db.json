@@ -1,0 +1,44 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "login": "admin",
+      "password": "admin"
+    },
+    {
+      "id": "2",
+      "login": "test",
+      "password": "1234"
+    },
+    {
+      "id": "75aa",
+      "login": "a",
+      "password": "a"
+    },
+    {
+      "id": "b2e9",
+      "login": "Kamil",
+      "password": "kamil"
+    },
+    {
+      "id": "7530",
+      "login": "Jakub",
+      "password": "Jakub"
+    },
+    {
+      "id": "5f18",
+      "login": "gh",
+      "password": "gh"
+    },
+    {
+      "id": "ae16",
+      "login": "ty",
+      "password": "ty"
+    },
+    {
+      "id": "bbf4",
+      "login": "Pop",
+      "password": "Pop"
+    }
+  ]
+}

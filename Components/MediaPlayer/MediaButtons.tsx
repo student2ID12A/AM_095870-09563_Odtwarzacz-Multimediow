@@ -1,79 +1,93 @@
 import React,{JSX, useState} from "react";
-import { AudioPlayer} from "expo-audio";
+import { AudioPlayer,useAudioPlayerStatus} from "expo-audio";
 import Foundation from '@expo/vector-icons/Foundation';
 import Slider from "@react-native-community/slider";
-import {StyleSheet, View,Text, Pressable} from "react-native";
-import { VideoPlayer } from "expo-video";
-import Entypo from '@expo/vector-icons/Entypo';
-import { useNavigation } from "@react-navigation/native";
+import {StyleSheet, View,Text, Pressable, Dimensions} from "react-native";
+import { useDarkMode } from "../FileLoader/DarkModeContext";
 
 type filetype={
-    type:AudioPlayer|VideoPlayer
+    type:AudioPlayer
 }
 
 export default function MediaButtons({type}:filetype):JSX.Element{
-    const [paused,Setpaused]=useState(true);
-    const fulltime=type.duration.toPrecision(4);
-    let currtime=type.currentTime.toPrecision(4)
+    
+    const { darkMode } = useDarkMode();
+    var [paused,Setpaused]=useState(true);
+    var status=useAudioPlayerStatus(type);
+    const fulltime=status.duration.toPrecision(3)
+    let currtime=status.currentTime.toPrecision(3)
+
+
     function PauseClicked() {  
         Setpaused(prev=>!prev);
-        if(paused) type.pause();
-        else if(!paused) type.play()
+        if(status.playing) type.pause();
+        else type.play()
+    }
+    const onsliderhold=async(value:number)=>{
+        type.pause();
+        type.seekTo(value);
+    }
+    const onsliderrelease=async()=>{
+        if(paused) type.play()
+    }
+    if(status.didJustFinish){
+        type.seekTo(0)
+        paused=false
     }
 
-    
+    //(
     return(
-        <View style={styles.ControlsContainer}>
-            <View style={{height:100}}>
-                <View style={styles.ListofButtons}>
-                    <Pressable>
-                        <Foundation name="previous" size={40} color="black" />
-                    </Pressable>
-                    <Pressable onPress={PauseClicked}>
-                        <Foundation name={paused?"play":"pause"} size={40} color="black" />
-                    </Pressable>
-                    <Pressable>
-                        <Foundation name="next" size={40} color="black" />
-                    </Pressable>
-                </View>
-                
+        <View style={styles.maincontainer}>
+            <View style={styles.ListofButtons}>
+                <Pressable>
+                    <Foundation name="previous" size={40} color={darkMode?"white":"black"} />
+                </Pressable>
+                <Pressable onPress={PauseClicked}>
+                    <Foundation name={paused?"pause":"play"} size={40} color={darkMode?"white":"black"} />
+                </Pressable>
+                <Pressable>
+                    <Foundation name="next" size={40} color={darkMode?"white":"black"} />
+                </Pressable>
             </View>
             <View style={styles.SliderSpace}>
-                <Text>{currtime}</Text>
-                <Slider style={{width:"80%"}}></Slider>
-                <Text>{fulltime}</Text>
-            </View>
-            
+                 <Text style={{color:darkMode?"white":"black"}}>{currtime}</Text>
+                 <Slider style={{width:"75%",marginHorizontal:5}}
+                    maximumValue={parseFloat(fulltime)}
+                    value={parseFloat(currtime)} 
+                    onValueChange={(value)=>onsliderhold(value)}
+                    onSlidingComplete={onsliderrelease}></Slider>
+                 <Text style={{color:darkMode?"white":"black"}}>{fulltime}</Text>
+             </View>
         </View>
     );
 }
 
-//
-//<Foundation name="pause" size={24} color="black" />
-
 const styles=StyleSheet.create({
-    ControlsContainer:{
+    maincontainer:{
         position:"absolute",
-        bottom:"-110%",
-        width:"100%",
-        height:"auto",
-        backgroundColor:"white",
         flexDirection:"column-reverse",
+        width:Dimensions.get("screen").width,
+        height:"auto",
         justifyContent:"center",
-        alignItems:"center"
+        alignItems:"center",
+        alignSelf:"center",
+        bottom:"-120%"
+        
     },
     ListofButtons:{
-        flexDirection:"row",
-        justifyContent:"space-between",
-        height:"auto",
-        width:"80%",
-    },
-    SliderSpace:{
-        width:"100%",
-        flexDirection:"row",
-        height:"auto",
-        top:10,
-        backgroundColor:"white"
-    }
+         flexDirection:"row",
+         justifyContent:"space-between",
+         height:"auto",
+         width:"60%",
+         bottom:40
+     },
+     SliderSpace:{
+         width:Dimensions.get("screen").width,
+         flexDirection:"row",
+         justifyContent:"center",
+         height:"auto",
+         top:10,
+         
+     } 
 })
 

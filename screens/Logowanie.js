@@ -8,90 +8,90 @@ import {
   Platform,
   Animated,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { api } from '../api/client';
 
 const Logowanie = ({ navigation }) => {
+  console.log("LOG: Komponent Logowanie renderuje się");
+
   const [login, setLogin] = useState('');
   const [haslo, setHaslo] = useState('');
   const [trybRejestracji, setTrybRejestracji] = useState(false);
-  const [uzytkownicy, setUzytkownicy] = useState({});
   const [fadeAnim] = useState(new Animated.Value(0));
   const [scaleAnim] = useState(new Animated.Value(0.9));
 
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalMsg, setModalMsg] = useState("");
+
+  const openModal = (msg) => {
+    setModalMsg(msg);
+    setModalVisible(true);
+  };
+
   useEffect(() => {
-  const wczytaj = async () => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 600,
+        useNativeDriver: false,
+      }),
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        friction: 4,
+        useNativeDriver: false,
+      }),
+    ]).start();
+  }, []);
+
+  const handleLoginAPI = async () => {
+    console.log("LOG: START handleLoginAPI()");
+
     try {
-      const dane = await AsyncStorage.getItem('uzytkownicy');
-      if (dane) setUzytkownicy(JSON.parse(dane));
+      const users = await api.findUser(login, haslo);
+
+      if (!Array.isArray(users) || users.length === 0) {
+        openModal("Nieprawidłowy login lub hasło!");
+        return;
+      }
+
+      openModal(`Zalogowano jako ${login}`);
+      setTimeout(() => navigation.replace("MainTabs"), 900);
+
     } catch (e) {
-      console.log("Błąd odczytu AsyncStorage", e);
+      openModal("Błąd połączenia z API: " + e.message);
     }
   };
-  wczytaj();
 
-  Animated.parallel([
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 600,
-      useNativeDriver: false, 
-    }),
-    Animated.spring(scaleAnim, {
-      toValue: 1,
-      friction: 4,
-      useNativeDriver: false, 
-    }),
-  ]).start();
-}, []);
+  const handleRegisterAPI = async () => {
+    console.log("LOG: START handleRegisterAPI()");
 
-  const zapiszUzytkownikow = async (nowi) => {
     try {
-      await AsyncStorage.setItem('uzytkownicy', JSON.stringify(nowi));
-      setUzytkownicy(nowi);
-    } catch (e) {}
-  };
+      const exists = await api.userExists(login);
 
-  const showAlert = (title) => {
-    if (Platform.OS === 'web') {
-      window.alert(title);
-    } else {
-      const { Alert } = require('react-native');
-      Alert.alert(title);
+      if (exists) {
+        openModal("Ten login jest już zajęty");
+        return;
+      }
+
+      await api.registerUser(login, haslo);
+      openModal("Konto utworzone! Możesz się zalogować.");
+
+      setTrybRejestracji(false);
+      setLogin('');
+      setHaslo('');
+
+    } catch (e) {
+      openModal("Błąd połączenia z API: " + e.message);
     }
   };
 
   const obsluzZatwierdzenie = () => {
     if (!login || !haslo) {
-      showAlert('Wpisz login i hasło');
+      openModal("Wpisz login i hasło");
       return;
     }
 
-    if (trybRejestracji) {
-      if (uzytkownicy[login]) {
-        showAlert('Ten login jest już zajęty');
-        return;
-      }
-      const nowi = { ...uzytkownicy, [login]: haslo };
-      zapiszUzytkownikow(nowi);
-      showAlert('Konto utworzone! Możesz się zalogować.');
-      setTrybRejestracji(false);
-      setLogin('');
-      setHaslo('');
-      return;
-    }
-
-    if (login === 'admin' && haslo === 'admin') {
-      showAlert('Zalogowano jako admin');
-      if (navigation && navigation.replace) navigation.replace('MainTabs');
-      return;
-    }
-
-    if (uzytkownicy[login] && uzytkownicy[login] === haslo) {
-      showAlert(`Zalogowano jako ${login}`);
-      if (navigation && navigation.replace) navigation.replace('MainTabs');
-      return;
-    }
-
-    showAlert('Nieprawidłowy login lub hasło!');
+    if (trybRejestracji) handleRegisterAPI();
+    else handleLoginAPI();
   };
 
   return (
@@ -100,26 +100,16 @@ const Logowanie = ({ navigation }) => {
       <View style={styles.backgroundCircle1} />
       <View style={styles.backgroundCircle2} />
       <View style={styles.backgroundCircle3} />
-      
-      <Animated.View 
+
+      {}
+      <Animated.View
         style={[
           styles.formContainer,
-          {
-            opacity: fadeAnim,
-            transform: [{ scale: scaleAnim }],
-          }
+          { opacity: fadeAnim, transform: [{ scale: scaleAnim }] },
         ]}
       >
-       
-
         <Text style={styles.tytul}>
           {trybRejestracji ? 'Rejestracja' : 'Logowanie'}
-        </Text>
-        
-        <Text style={styles.podtytul}>
-          {trybRejestracji 
-            ? '' 
-            : ''}
         </Text>
 
         {}
@@ -134,7 +124,6 @@ const Logowanie = ({ navigation }) => {
             autoCapitalize="none"
             value={login}
             onChangeText={setLogin}
-            testID="loginInput"
           />
         </View>
 
@@ -150,16 +139,13 @@ const Logowanie = ({ navigation }) => {
             secureTextEntry
             value={haslo}
             onChangeText={setHaslo}
-            testID="passwordInput"
           />
         </View>
 
         {}
-        <TouchableOpacity 
-          style={styles.przycisk} 
-          onPress={obsluzZatwierdzenie} 
-          testID="submitBtn"
-          activeOpacity={0.85}
+        <TouchableOpacity
+          style={styles.przycisk}
+          onPress={obsluzZatwierdzenie}
         >
           <Text style={styles.przyciskTekst}>
             {trybRejestracji ? 'Zarejestruj się' : 'Zaloguj się'}
@@ -178,25 +164,75 @@ const Logowanie = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
-        {}
+        {/* KROPKI */}
         <View style={styles.dotsContainer}>
           <View style={[styles.dot, { backgroundColor: '#007AFF' }]} />
           <View style={[styles.dot, { backgroundColor: '#5856D6' }]} />
           <View style={[styles.dot, { backgroundColor: '#FF2D55' }]} />
         </View>
       </Animated.View>
+
+      {}
+      {modalVisible && (
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalBox}>
+            <Text style={styles.modalText}>{modalMsg}</Text>
+
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={styles.modalButtonText}>OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+
+  modalOverlay: {
+    position: "absolute",
+    top: 0, left: 0, right: 0, bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.55)",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 999,
+  },
+  modalBox: {
+    width: "75%",
+    backgroundColor: "white",
+    padding: 25,
+    borderRadius: 18,
+    elevation: 10,
+  },
+  modalText: {
+    textAlign: "center",
+    fontSize: 17,
+    marginBottom: 20,
+    fontWeight: "500",
+  },
+  modalButton: {
+    alignSelf: "center",
+    backgroundColor: "#007AFF",
+    paddingVertical: 10,
+    paddingHorizontal: 26,
+    borderRadius: 12,
+  },
+  modalButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+
   container: {
     flex: 1,
     backgroundColor: '#f5f7fa',
     justifyContent: 'center',
     padding: 20,
   },
-  
   backgroundCircle1: {
     position: 'absolute',
     width: 300,
@@ -234,39 +270,12 @@ const styles = StyleSheet.create({
     shadowRadius: 20,
     elevation: 8,
   },
-  avatarContainer: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  avatar: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    backgroundColor: '#007AFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#007AFF',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  avatarText: {
-    fontSize: 40,
-  },
   tytul: {
     fontSize: 28,
     fontWeight: '800',
     textAlign: 'center',
     marginBottom: 8,
     color: '#007AFF',
-  },
-  podtytul: {
-    fontSize: 15,
-    textAlign: 'center',
-    marginBottom: 30,
-    color: '#666',
-    lineHeight: 22,
   },
   inputWrapper: {
     flexDirection: 'row',
@@ -281,9 +290,6 @@ const styles = StyleSheet.create({
     width: 50,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  inputIcon: {
-    fontSize: 20,
   },
   input: {
     flex: 1,
@@ -300,23 +306,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 8,
     marginBottom: 20,
-    shadowColor: '#007AFF',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
   },
   przyciskTekst: {
     color: '#fff',
     fontSize: 17,
     fontWeight: '700',
-    letterSpacing: 0.5,
   },
   przełącznikContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 4,
   },
   przełącznikTekst: {
     color: '#666',

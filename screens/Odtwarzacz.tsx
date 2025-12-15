@@ -1,6 +1,6 @@
 import { useNavigation, useRoute } from "@react-navigation/native";
-import React,{JSX, useState} from "react";
-import { Text, StyleSheet, View } from "react-native";
+import React,{JSX} from "react";
+import { Text, StyleSheet, View, Pressable } from "react-native";
 import {SafeAreaView } from "react-native-safe-area-context";
 import {ImagePlayer, MusicPlayer,VidPlayer} from "../Components/MediaPlayer/MPLayout";
 import { useDarkMode } from "../Components/FileLoader/DarkModeContext";
@@ -10,15 +10,16 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 
 
 export default function PlayerScreen():JSX.Element{
+    const nav=useNavigation();
     const { darkMode } = useDarkMode();
     const route=useRoute();
-    const nav=useNavigation();
+    
     let asset:Asset=route.params["I_inf"];
     var path=route.params["I_ref"];
     var type=asset.type;
     var name=asset.name;
     console.log("pobrane wartosci: \ntyp: ",type,"\npath: ",path,"\nname: ",name)
-    
+    var width=Dimensions.get("window").width;
     function initComponent() {
         if(type=="png"||type=="jpg"||type=="gif"){
             return <ImagePlayer ref={path}></ImagePlayer>
@@ -37,8 +38,12 @@ export default function PlayerScreen():JSX.Element{
 
     return(
         <SafeAreaView style={[styles.container,darkMode&&styles.darkcontainer]}>
-            <View style={styles.header}>
-                <AntDesign name="arrow-left" size={24} color="black" />
+            <View style={[styles.header,darkMode&&styles.darkheader]}>
+                <Pressable onPress={()=>nav.goBack()} style={styles.backicon}>
+                    <AntDesign name="arrow-left" size={width/15} color={darkMode?"white":"black"} />
+                </Pressable>
+                <Text style={{fontSize:width/17, color:darkMode?"white":"black"}}>{name}</Text>
+                <View style={styles.backicon}></View>
             </View>
             {container}
             
@@ -49,23 +54,40 @@ export default function PlayerScreen():JSX.Element{
 const styles=StyleSheet.create({
     container:{
         backgroundColor:"white",
-        width:Dimensions.get('screen').width,
+        flex:1,
         justifyContent:"flex-start",
         alignItems:"center"
     },
     darkcontainer:{
-        backgroundColor:"#413e3eff",
+        backgroundColor:"#252424ff",
         flex:1,
         justifyContent:"flex-start",
         alignItems:"center"
     },
     header:{
         height:"auto",
-        width:"100%",
-        position:"relative",
-        backgroundColor:"red",
+        width:Dimensions.get('screen').width,
+        position:"static",
+        backgroundColor:"white",
+        flexDirection:"row",
+        justifyContent:"space-between",
+        alignItems:"center"
+    },
+    darkheader:{
+        height:"auto",
+        width:Dimensions.get('screen').width,
+        position:"static",
+        backgroundColor:"#252424ff",
         flexDirection:"row"
+    },
+    backicon:{
+        width:"10%",
+        height:"auto",
+        padding:10
     }
+
+
+    
     
 })
 

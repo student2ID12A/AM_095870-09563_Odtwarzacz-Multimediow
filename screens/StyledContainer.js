@@ -1,43 +1,38 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { useDarkMode } from '../Components/FileLoader/DarkModeContext'; // 👈 DODAJ TEN IMPORT
+import { useDarkMode } from '../Components/FileLoader/DarkModeContext';
 
 const StyledContainer = ({ children, title, subtitle }) => {
-  const { darkMode } = useDarkMode(); // 👈 UŻYJ HOOKA Z CONTEXT
+  const { darkMode } = useDarkMode();
 
   return (
     <View style={[styles.container, darkMode && styles.darkContainer]}>
-      {/* Dekoracyjne koła w tle */}
+      
+      {}
       <View style={[styles.backgroundCircle1, darkMode && styles.darkBackgroundCircle1]} />
       <View style={[styles.backgroundCircle2, darkMode && styles.darkBackgroundCircle2]} />
       <View style={[styles.backgroundCircle3, darkMode && styles.darkBackgroundCircle3]} />
-      
-      <ScrollView 
+
+      {}
+      <View
         contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={true}
+        showsVerticalScrollIndicator={false}
       >
         <View style={[styles.formContainer, darkMode && styles.darkFormContainer]}>
-          {/* Opcjonalny tytuł */}
-          {title && (
-            <Text style={[styles.tytul, darkMode && styles.darkTytul]}>{title}</Text>
-          )}
-          
-          {/* Opcjonalny podtytuł */}
-          {subtitle && (
-            <Text style={[styles.podtytul, darkMode && styles.darkPodtytul]}>{subtitle}</Text>
-          )}
-          
-          {/* Treść ekranu */}
+
+          {title && <Text style={[styles.tytul, darkMode && styles.darkTytul]}>{title}</Text>}
+          {subtitle && <Text style={[styles.podtytul, darkMode && styles.darkPodtytul]}>{subtitle}</Text>}
+
           {children}
-          
-          {/* Dekoracyjne kropki na dole */}
+
           <View style={styles.dotsContainer}>
             <View style={[styles.dot, { backgroundColor: '#007AFF' }]} />
             <View style={[styles.dot, { backgroundColor: '#5856D6' }]} />
             <View style={[styles.dot, { backgroundColor: '#FF2D55' }]} />
           </View>
         </View>
-      </ScrollView>
+      </View>
+
     </View>
   );
 };
@@ -55,6 +50,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 20,
   },
+
   backgroundCircle1: {
     position: 'absolute',
     width: 300,
@@ -67,6 +63,7 @@ const styles = StyleSheet.create({
   darkBackgroundCircle1: {
     backgroundColor: 'rgba(0, 122, 255, 0.03)',
   },
+
   backgroundCircle2: {
     position: 'absolute',
     width: 250,
@@ -79,6 +76,7 @@ const styles = StyleSheet.create({
   darkBackgroundCircle2: {
     backgroundColor: 'rgba(88, 86, 214, 0.03)',
   },
+
   backgroundCircle3: {
     position: 'absolute',
     width: 180,
@@ -91,6 +89,7 @@ const styles = StyleSheet.create({
   darkBackgroundCircle3: {
     backgroundColor: 'rgba(255, 45, 85, 0.02)',
   },
+
   formContainer: {
     backgroundColor: '#ffffff',
     borderRadius: 24,
@@ -103,9 +102,8 @@ const styles = StyleSheet.create({
   },
   darkFormContainer: {
     backgroundColor: '#2d2d2d',
-    shadowColor: '#000',
-    shadowOpacity: 0.3,
   },
+
   tytul: {
     fontSize: 28,
     fontWeight: '800',
@@ -116,20 +114,20 @@ const styles = StyleSheet.create({
   darkTytul: {
     color: '#4dabf7',
   },
+
   podtytul: {
     fontSize: 15,
     textAlign: 'center',
     marginBottom: 20,
     color: '#666',
-    lineHeight: 22,
   },
   darkPodtytul: {
     color: '#aaaaaa',
   },
+
   dotsContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    alignItems: 'center',
     marginTop: 24,
     gap: 10,
   },
