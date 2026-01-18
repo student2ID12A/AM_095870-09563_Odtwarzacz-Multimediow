@@ -1,38 +1,40 @@
 import React,{JSX, useEffect,useState} from "react";
-import {FlatList, StyleSheet,Text,Image} from "react-native";
+import {FlatList, StyleSheet} from "react-native";
 import { Asset} from "expo-asset";
-import {filest} from "./data";
+import {database, filest} from "./data";
 import FileScheme from "./FileScheme";
-import { Directory, Paths,File } from "expo-file-system";
-
 
 type FLProp={
-    folder:string
+    folder:string,
+    login:string;
     typefilter?:string
 }
-
-
-export default function FileLoader({folder,typefilter}:FLProp):JSX.Element{
 
 type oprop={
   inf:Asset;
   path:any;
 }
 
-
-const [result, setResult] = useState<oprop[]>([]);
+export const loadfiles = async (folder,login,typefilter?) => {
+  
 const filenames = filest[folder];
+const mainplaylist=database[login].Playlists[0].Files;
 
-const loadfiles = async () => {
+function getfromfilest(filename:string){
+  const cos=filenames.filter(it=>it.name.includes(filename));
+  return cos[0];
+}
   try {
     const fetchedfiles: oprop[] = [];
 
-    for (let i = 0; i < filenames.length; i++) {
-      const asset = Asset.fromModule(filenames[i].path);
+    for (let i = 0; i < mainplaylist.length; i++) {
+      
+      const founded=getfromfilest(mainplaylist[i]);
+      const asset = Asset.fromModule(founded.path);
       await asset.downloadAsync();
       fetchedfiles.push({
         inf:asset,
-        path:filenames[i].path
+        path:founded.path
       })
     }
 
@@ -44,17 +46,25 @@ const loadfiles = async () => {
   }
 };
 
+
+export default function FileLoader({folder,login,typefilter}:FLProp):JSX.Element{
+
+const [result, setResult] = useState<oprop[]>([]);
+
 useEffect(() => {
   (async () => {
-    const val = await loadfiles();
+    const val = await loadfiles(folder,login,typefilter);
     if (val) setResult(val);
   })();
 }, []);
     return(
-       <FlatList style={styles.container} data={result} renderItem={({item})=><FileScheme 
-                inf={item.inf}
-                ref={item.path}></FileScheme>}>
-                </FlatList>
+      <FlatList style={styles.container} 
+        data={result} renderItem={({item})=>
+        <FileScheme 
+        inf={item.inf}
+        ref={item.path}>
+        </FileScheme>}>
+      </FlatList>
     );
 }
 
@@ -70,26 +80,12 @@ const styles=StyleSheet.create({
 
 
 /*
-
-
     var localfiles=dir.list();
     
     var filtered:(FS.Directory|FS.File)[]=[];
     filtered=localfiles.filter(It=> It.name.includes(typefilter))
 
 */
-
-
-/*
-<FlatList style={styles.container} data={filtered} renderItem={({item})=><FileScheme 
-       name={item.name} 
-       size={(item.size/1024).toPrecision(4).toString()}
-       dir={folder}
-       lastMod={item.info().modificationTime}></FileScheme>}>
-       </FlatList>
-
-*/
-
 
 
 /*

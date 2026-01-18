@@ -1,5 +1,5 @@
 import React,{JSX, useEffect} from "react";
-import { Dimensions, Image, StyleSheet, View} from "react-native";
+import { Dimensions, Image, StyleSheet, View,Text} from "react-native";
 import {useAudioPlayer } from "expo-audio";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useVideoPlayer,VideoView } from "expo-video";
@@ -43,13 +43,14 @@ export function MusicPlayer({ref}:necessfiles):JSX.Element{
 }
 
 export function VidPlayer({ref}:necessfiles):JSX.Element{
-    const vidfile=useVideoPlayer(ref)
+    const vidfile=useVideoPlayer(require("../../assets/ExampleFiles/film.mp4"))
     vidfile.seekBy(0);
     vidfile.play();
-    console.log("dotarlo do filmu")
+    console.log("dotarlo do filmu");
     return(
         <View style={styles.ImagePlayer}>
             <VideoView player={vidfile} style={{height:300,width:"100%"}}></VideoView>
+            <Text>asdasd</Text>
         </View>
     );
 }
