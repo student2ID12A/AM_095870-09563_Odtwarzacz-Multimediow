@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,9 @@ import {
   Animated,
 } from 'react-native';
 import { api } from '../api/client';
+import { LoginProvider, uselogprovider } from '../Components/FileLoader/data';
+
+
 
 const Logowanie = ({ navigation }) => {
   console.log("LOG: Komponent Logowanie renderuje się");
@@ -42,19 +45,25 @@ const Logowanie = ({ navigation }) => {
     ]).start();
   }, []);
 
+  
+  const {setlogged}=uselogprovider();
+
   const handleLoginAPI = async () => {
     console.log("LOG: START handleLoginAPI()");
+    
 
     try {
       const users = await api.findUser(login, haslo);
-
+      
       if (!Array.isArray(users) || users.length === 0) {
         openModal("Nieprawidłowy login lub hasło!");
         return;
       }
-
+      
       openModal(`Zalogowano jako ${login}`);
+      setlogged(login);
       setTimeout(() => navigation.replace("MainTabs"), 900);
+      
 
     } catch (e) {
       openModal("Błąd połączenia z API: " + e.message);
@@ -94,8 +103,9 @@ const Logowanie = ({ navigation }) => {
     else handleLoginAPI();
   };
 
+
   return (
-    <View style={styles.container}>
+      <View style={styles.container}>
       {}
       <View style={styles.backgroundCircle1} />
       <View style={styles.backgroundCircle2} />

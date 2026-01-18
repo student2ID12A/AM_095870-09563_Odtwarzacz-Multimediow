@@ -5,7 +5,7 @@ import { useNavigation } from "@react-navigation/native";
 
 export default function Playlisty() {
   const navigation = useNavigation();
-
+  
   return (
     <StyledContainer title="Playlisty" subtitle="">
       <TouchableOpacity

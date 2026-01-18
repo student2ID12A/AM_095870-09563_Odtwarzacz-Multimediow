@@ -1,14 +1,15 @@
-import React,{JSX, useEffect, useState} from "react";
+import React,{JSX} from "react";
 import FileLoader from "../Components/FileLoader/FileLoader";
 import StyledContainer from "./StyledContainer";
+import { uselogprovider } from "../Components/FileLoader/data";
 
-export default function FilelistScreen({navigation}):JSX.Element{
+export default function FilelistScreen():JSX.Element{
 const defaultfolder="ExampleFiles";
-    
-    return(
+
+const {logged}=uselogprovider();
+return(
         <StyledContainer title={"Lista plikow"} subtitle={""}>
-            <FileLoader folder={defaultfolder} typefilter={""}></FileLoader>
-        </StyledContainer>
-        
+            <FileLoader folder={defaultfolder} login={logged} typefilter=""></FileLoader>
+        </StyledContainer>       
     );
 }

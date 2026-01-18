@@ -7,7 +7,7 @@ import { useNavigation } from "@react-navigation/native";
 export default function PlaylistSelect() {
   const [playlists, setPlaylists] = useState({});
   const navigation = useNavigation();
-
+  console.log("Zbior kluczy",playlists);
   const load = async () => {
     const p = await getPlaylists();
     setPlaylists(p);

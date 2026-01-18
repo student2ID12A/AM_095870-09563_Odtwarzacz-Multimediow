@@ -2,14 +2,15 @@ import React, { useEffect, useState } from "react";
 import { Text, TouchableOpacity, StyleSheet, FlatList, View } from "react-native";
 import StyledContainer from "./StyledContainer";
 import { getPlaylists, removeFromPlaylist, deletePlaylist } from "../storage/playlists";
+import { uselogprovider } from "../Components/FileLoader/data";
 
 export default function PlaylistView({ route, navigation }) {
   const { name } = route.params;
   const [files, setFiles] = useState([]);
-
+  const {logged}=uselogprovider();
   const load = async () => {
     const all = await getPlaylists();
-    setFiles(all[name] || []);
+    setFiles(all[name].files || []);
   };
 
   useEffect(() => {

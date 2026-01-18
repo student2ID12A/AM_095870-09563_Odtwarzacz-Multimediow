@@ -1,22 +1,23 @@
 import React, { useState } from "react";
 import { View, TextInput, Text, TouchableOpacity, StyleSheet, FlatList } from "react-native";
 import StyledContainer from "./StyledContainer";
-import { filest } from "../Components/FileLoader/data";
+import { filest, uselogprovider } from "../Components/FileLoader/data";
 import { createPlaylist, addToPlaylist } from "../storage/playlists";
 
 export default function PlaylistAdd({ navigation }) {
+  
   const [name, setName] = useState("");
   const [created, setCreated] = useState(false);
-
+  const {logged}=uselogprovider();
   const files = filest["ExampleFiles"]; 
   const handleCreate = async () => {
     if (!name) return;
-    await createPlaylist(name);
+    await createPlaylist(name,logged);
     setCreated(true);
   };
 
   const addFile = async (file) => {
-    await addToPlaylist(name, file.name);
+    await addToPlaylist(name,logged,file.name);
   };
 
   return (
