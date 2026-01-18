@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer} from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
@@ -19,11 +19,17 @@ import Playlisty from './screens/Playlisty';
 import PlaylistAdd from './screens/PlaylistAdd';
 import PlaylistSelect from './screens/PlaylistSelect';
 import PlaylistView from './screens/PlaylistView';
+import { LoginProvider, uselogprovider } from './Components/FileLoader/data';
+
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
+
+
 function MainTabs() {
+  const {logged}=uselogprovider();
+  console.log("Mamy login jako: ",logged);
   return (
     <Tab.Navigator
       screenOptions={({ route, navigation }) => ({
@@ -83,7 +89,7 @@ function MainTabs() {
     >
       <Tab.Screen name="Lista plików" component={FilelistScreen} />
       <Tab.Screen name="Pobrane" component={EkranPobierania} />
-      <Tab.Screen name="Wyszukiwanie" component={Wyszukiwanie} />
+      <Tab.Screen name="Wyszukiwanie" component={Wyszukiwanie}/>
       <Tab.Screen name="Playlisty" component={Playlisty} />
     </Tab.Navigator>
   );
@@ -91,6 +97,7 @@ function MainTabs() {
 
 export default function App() {
   return (
+    <LoginProvider>
     <DarkModeProvider>
       <NavigationContainer>
         <Stack.Navigator initialRouteName="Logowanie">
@@ -120,8 +127,6 @@ export default function App() {
           />
 
           <Stack.Screen name="Szczegoly" component={DetailScreen} />
-
-          {}
           <Stack.Screen name="PlaylistAdd" component={PlaylistAdd} />
           <Stack.Screen name="PlaylistSelect" component={PlaylistSelect} />
           <Stack.Screen name="PlaylistView" component={PlaylistView} />
@@ -129,5 +134,6 @@ export default function App() {
         </Stack.Navigator>
       </NavigationContainer>
     </DarkModeProvider>
+    </LoginProvider>
   );
 }

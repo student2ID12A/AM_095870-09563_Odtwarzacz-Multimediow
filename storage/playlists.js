@@ -9,18 +9,19 @@ export async function getPlaylists() {
 
 export async function savePlaylists(data) {
   await AsyncStorage.setItem(KEY, JSON.stringify(data));
+  
 }
 
-export async function createPlaylist(name) {
+export async function createPlaylist(name,logged) {
   const playlists = await getPlaylists();
-  playlists[name] = [];
+  playlists[name] = {"user":logged,"files":[]};
   await savePlaylists(playlists);
 }
 
-export async function addToPlaylist(name, fileName) {
+export async function addToPlaylist(name,logged, fileName) {
   const playlists = await getPlaylists();
-  if (!playlists[name]) playlists[name] = [];
-  if (!playlists[name].includes(fileName)) playlists[name].push(fileName);
+  if (!playlists[name]||playlists[name].user!=logged) playlists[name] = {"user":logged,"files":[]};
+  if (!playlists[name]["files"].includes(fileName)) playlists[name]["files"].push(fileName);
   await savePlaylists(playlists);
 }
 
@@ -32,6 +33,6 @@ export async function deletePlaylist(name) {
 
 export async function removeFromPlaylist(name, fileName) {
   const playlists = await getPlaylists();
-  playlists[name] = playlists[name].filter(f => f !== fileName);
+  playlists[name]["files"] = playlists[name]["files"].filter(f => f !== fileName);
   await savePlaylists(playlists);
 }
